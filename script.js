@@ -146,10 +146,18 @@ function downloadProfileAsPdf() {
     const { jsPDF } = window.jspdf;
     const originalWidth = profile.style.width;
     const originalMaxWidth = profile.style.maxWidth;
+    const originalMinHeight = profile.style.minHeight;
     const originalPadding = profile.style.padding;
+    const originalDisplay = profile.style.display;
 
-    profile.style.width = "100%";
-    profile.style.maxWidth = "100%";
+    const A4_WIDTH_MM = 210;
+    const A4_HEIGHT_MM = 297;
+    const PAGE_MARGIN_MM = 8;
+
+    profile.style.display = "block";
+    profile.style.width = `${A4_WIDTH_MM}mm`;
+    profile.style.maxWidth = `${A4_WIDTH_MM}mm`;
+    profile.style.minHeight = `${A4_HEIGHT_MM}mm`;
     profile.style.padding = "0";
 
     html2canvas(profile, {
@@ -158,18 +166,29 @@ function downloadProfileAsPdf() {
       backgroundColor: "#ffffff",
       scrollX: 0,
       scrollY: 0,
-      windowWidth: profile.scrollWidth,
-      windowHeight: profile.scrollHeight + 100,
+      windowWidth: Math.max(profile.scrollWidth, A4_WIDTH_MM * 3.77953),
+      windowHeight: Math.max(profile.scrollHeight, A4_HEIGHT_MM * 3.77953),
     }).then((canvas) => {
+      const canvasWidth = canvas.width || profile.scrollWidth;
+      const canvasHeight = canvas.height || profile.scrollHeight;
+
+      if (!canvasWidth || !canvasHeight) {
+        throw new Error("Canvas size is invalid for PDF export.");
+      }
+
       const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
       const imageData = canvas.toDataURL("image/png");
-      const pageWidth = pdf.internal.pageSize.getWidth() - 12;
-      const pageHeight = pdf.internal.pageSize.getHeight() - 12;
-      const ratio = Math.min(pageWidth / canvas.width, pageHeight / canvas.height);
-      const width = canvas.width * ratio;
-      const height = canvas.height * ratio;
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const usableWidth = pageWidth - PAGE_MARGIN_MM * 2;
+      const usableHeight = pageHeight - PAGE_MARGIN_MM * 2;
+      const scale = Math.min(usableWidth / canvasWidth, usableHeight / canvasHeight);
+      const width = canvasWidth * scale;
+      const height = canvasHeight * scale;
+      const x = (pageWidth - width) / 2;
+      const y = (pageHeight - height) / 2;
 
-      pdf.addImage(imageData, "PNG", 6, 6, width, height);
+      pdf.addImage(imageData, "PNG", x, y, width, height, undefined, "FAST");
 
       const fileName = `${fullName.value || "student-profile"}.pdf`;
       const pdfBlob = pdf.output("blob");
@@ -187,13 +206,17 @@ function downloadProfileAsPdf() {
 
       profile.style.width = originalWidth;
       profile.style.maxWidth = originalMaxWidth;
+      profile.style.minHeight = originalMinHeight;
       profile.style.padding = originalPadding;
+      profile.style.display = originalDisplay;
       resolve(true);
     }).catch((error) => {
       console.error("PDF generation failed:", error);
       profile.style.width = originalWidth;
       profile.style.maxWidth = originalMaxWidth;
+      profile.style.minHeight = originalMinHeight;
       profile.style.padding = originalPadding;
+      profile.style.display = originalDisplay;
       resolve(false);
     });
   });
@@ -220,6 +243,19 @@ pin.addEventListener("input", function() {
   updateSubmitButton();
 });
 
+function showProfileAsA4() {
+  profile.style.position = "fixed";
+  profile.style.top = "20px";
+  profile.style.left = "50%";
+  profile.style.transform = "translateX(-50%)";
+  profile.style.width = "210mm";
+  profile.style.maxWidth = "calc(100vw - 32px)";
+  profile.style.minHeight = "297mm";
+  profile.style.height = "auto";
+  profile.style.padding = "20px 0";
+  profile.style.display = "block";
+}
+
 submit.addEventListener("click", (e) => {
   e.preventDefault();
 
@@ -229,11 +265,12 @@ submit.addEventListener("click", (e) => {
 
   updateProfilePreview();
   saveProfileToLocalStorage();
-  profile.style.display = "block";
+  showProfileAsA4();
 });
 
 downloadButton.addEventListener("click", async () => {
   saveProfileToLocalStorage();
+  showProfileAsA4();
 
   await downloadProfileAsPdf();
   profile.style.display = "none";
