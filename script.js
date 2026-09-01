@@ -48,6 +48,9 @@ let downloadButton = document.querySelector("#remove");
 let formFields = Array.from(
   document.querySelectorAll("input[required], select[required]"),
 );
+submit.addEventListener("click", () => {
+  downloadButton.style.display = "block";
+})
 const STORAGE_KEY = "student-profile-data";
 
 function readFileAsDataUrl(file) {
