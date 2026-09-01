@@ -45,7 +45,9 @@ let titleID = document.querySelector("#titleID");
 let submit = document.querySelector("#submit");
 let profile = document.querySelector("#profileID");
 let downloadButton = document.querySelector("#remove");
-let formFields = Array.from(document.querySelectorAll("input[required], select[required]"));
+let formFields = Array.from(
+  document.querySelectorAll("input[required], select[required]"),
+);
 const STORAGE_KEY = "student-profile-data";
 
 function readFileAsDataUrl(file) {
@@ -137,7 +139,10 @@ function isFormValid() {
 
 function downloadProfileAsPdf() {
   return new Promise((resolve) => {
-    if (typeof window.jspdf === "undefined" || typeof window.html2canvas === "undefined") {
+    if (
+      typeof window.jspdf === "undefined" ||
+      typeof window.html2canvas === "undefined"
+    ) {
       console.warn("PDF libraries are still loading. Please try again.");
       resolve(false);
       return;
@@ -149,76 +154,118 @@ function downloadProfileAsPdf() {
     const originalMinHeight = profile.style.minHeight;
     const originalPadding = profile.style.padding;
     const originalDisplay = profile.style.display;
+    const originalPosition = profile.style.position;
+    const originalLeft = profile.style.left;
+    const originalRight = profile.style.right;
+    const originalMargin = profile.style.margin;
+    const originalTransform = profile.style.transform;
+    const originalBackground = profile.style.background;
 
     const A4_WIDTH_MM = 210;
     const A4_HEIGHT_MM = 297;
-    const PAGE_MARGIN_MM = 8;
+    const PAGE_MARGIN_MM = 0;
 
-    profile.style.display = "block";
-    profile.style.width = `${A4_WIDTH_MM}mm`;
-    profile.style.maxWidth = `${A4_WIDTH_MM}mm`;
-    profile.style.minHeight = `${A4_HEIGHT_MM}mm`;
-    profile.style.padding = "0";
+    const exportElement = profile.cloneNode(true);
+    exportElement.style.position = "static";
+    exportElement.style.left = "0";
+    exportElement.style.right = "auto";
+    exportElement.style.margin = "0";
+    exportElement.style.transform = "none";
+    exportElement.style.display = "block";
+    exportElement.style.background = "#fff";
+    exportElement.style.width = `${A4_WIDTH_MM}mm`;
+    exportElement.style.maxWidth = `${A4_WIDTH_MM}mm`;
+    exportElement.style.height = `${A4_HEIGHT_MM}mm`;
+    exportElement.style.minHeight = `${A4_HEIGHT_MM}mm`;
+    exportElement.style.padding = "0";
+    exportElement.style.boxSizing = "border-box";
+    profile.parentNode.insertBefore(exportElement, profile.nextSibling);
 
-    html2canvas(profile, {
+    html2canvas(exportElement, {
       scale: 2,
       useCORS: true,
       backgroundColor: "#ffffff",
       scrollX: 0,
       scrollY: 0,
-      windowWidth: Math.max(profile.scrollWidth, A4_WIDTH_MM * 3.77953),
-      windowHeight: Math.max(profile.scrollHeight, A4_HEIGHT_MM * 3.77953),
-    }).then((canvas) => {
-      const canvasWidth = canvas.width || profile.scrollWidth;
-      const canvasHeight = canvas.height || profile.scrollHeight;
+      width: A4_WIDTH_MM * 3.77953,
+      height: A4_HEIGHT_MM * 3.77953,
+      windowWidth: A4_WIDTH_MM * 3.77953,
+      windowHeight: A4_HEIGHT_MM * 3.77953,
+    })
+      .then((canvas) => {
+        const canvasWidth = canvas.width || exportElement.scrollWidth;
+        const canvasHeight = canvas.height || exportElement.scrollHeight;
 
-      if (!canvasWidth || !canvasHeight) {
-        throw new Error("Canvas size is invalid for PDF export.");
-      }
+        if (!canvasWidth || !canvasHeight) {
+          throw new Error("Canvas size is invalid for PDF export.");
+        }
 
-      const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-      const imageData = canvas.toDataURL("image/png");
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-      const usableWidth = pageWidth - PAGE_MARGIN_MM * 2;
-      const usableHeight = pageHeight - PAGE_MARGIN_MM * 2;
-      const scale = Math.min(usableWidth / canvasWidth, usableHeight / canvasHeight);
-      const width = canvasWidth * scale;
-      const height = canvasHeight * scale;
-      const x = (pageWidth - width) / 2;
-      const y = (pageHeight - height) / 2;
+        const pdf = new jsPDF({
+          orientation: "portrait",
+          unit: "mm",
+          format: "a4",
+        });
+        const imageData = canvas.toDataURL("image/png");
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
 
-      pdf.addImage(imageData, "PNG", x, y, width, height, undefined, "FAST");
+        pdf.addImage(
+          imageData,
+          "PNG",
+          0,
+          0,
+          pageWidth,
+          pageHeight,
+          undefined,
+          "FAST",
+        );
 
-      const fileName = `${fullName.value || "student-profile"}.pdf`;
-      const pdfBlob = pdf.output("blob");
-      const pdfUrl = URL.createObjectURL(pdfBlob);
-      const link = document.createElement("a");
-      link.href = pdfUrl;
-      link.download = fileName;
-      link.rel = "noopener";
-      document.body.appendChild(link);
-      link.click();
-      setTimeout(() => {
-        link.remove();
-        URL.revokeObjectURL(pdfUrl);
-      }, 1000);
+        const fileName = `${fullName.value || "student-profile"}.pdf`;
+        const pdfBlob = pdf.output("blob");
+        const pdfUrl = URL.createObjectURL(pdfBlob);
+        const link = document.createElement("a");
+        link.href = pdfUrl;
+        link.download = fileName;
+        link.rel = "noopener";
+        document.body.appendChild(link);
+        link.click();
+        setTimeout(() => {
+          link.remove();
+          URL.revokeObjectURL(pdfUrl);
+        }, 1000);
 
-      profile.style.width = originalWidth;
-      profile.style.maxWidth = originalMaxWidth;
-      profile.style.minHeight = originalMinHeight;
-      profile.style.padding = originalPadding;
-      profile.style.display = originalDisplay;
-      resolve(true);
-    }).catch((error) => {
-      console.error("PDF generation failed:", error);
-      profile.style.width = originalWidth;
-      profile.style.maxWidth = originalMaxWidth;
-      profile.style.minHeight = originalMinHeight;
-      profile.style.padding = originalPadding;
-      profile.style.display = originalDisplay;
-      resolve(false);
-    });
+        exportElement.remove();
+        profile.style.width = originalWidth;
+        profile.style.maxWidth = originalMaxWidth;
+        profile.style.minHeight = originalMinHeight;
+        profile.style.padding = originalPadding;
+        profile.style.display = originalDisplay;
+        profile.style.position = originalPosition;
+        profile.style.left = originalLeft;
+        profile.style.right = originalRight;
+        profile.style.margin = originalMargin;
+        profile.style.transform = originalTransform;
+        profile.style.background = originalBackground;
+        resolve(true);
+      })
+      .catch((error) => {
+        if (exportElement && exportElement.parentNode) {
+          exportElement.remove();
+        }
+        console.error("PDF generation failed:", error);
+        profile.style.width = originalWidth;
+        profile.style.maxWidth = originalMaxWidth;
+        profile.style.minHeight = originalMinHeight;
+        profile.style.padding = originalPadding;
+        profile.style.display = originalDisplay;
+        profile.style.position = originalPosition;
+        profile.style.left = originalLeft;
+        profile.style.right = originalRight;
+        profile.style.margin = originalMargin;
+        profile.style.transform = originalTransform;
+        profile.style.background = originalBackground;
+        resolve(false);
+      });
   });
 }
 
@@ -233,12 +280,12 @@ formFields.forEach((field) => {
   field.addEventListener("blur", updateSubmitButton);
 });
 
-phoneNumber.addEventListener("input", function() {
+phoneNumber.addEventListener("input", function () {
   this.value = this.value.replace(/\D/g, "");
   updateSubmitButton();
 });
 
-pin.addEventListener("input", function() {
+pin.addEventListener("input", function () {
   this.value = this.value.replace(/\D/g, "");
   updateSubmitButton();
 });
@@ -246,8 +293,11 @@ pin.addEventListener("input", function() {
 function showProfileAsA4() {
   profile.style.position = "fixed";
   profile.style.top = "20px";
-  profile.style.left = "50%";
-  profile.style.transform = "translateX(-50%)";
+  profile.style.left = "0";
+  profile.style.right = "0";
+  profile.style.margin = "0 auto";
+  profile.style.transform = "none";
+  profile.style.background = "#fff";
   profile.style.width = "210mm";
   profile.style.maxWidth = "calc(100vw - 32px)";
   profile.style.minHeight = "297mm";
