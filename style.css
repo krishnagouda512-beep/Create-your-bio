@@ -1,0 +1,180 @@
+body {
+  font-family: "Plus Jakarta Sans", sans-serif;
+}
+.section {
+  border: 1px solid #ccc;
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 8px;
+}
+.section  div{
+    margin-bottom: 20px;
+}
+h2 {
+  color: #333;
+  margin-bottom: 10px;
+}
+input,
+textarea {
+  width: 100%;
+  padding: 8px;
+  border-radius: 5px;
+  border: 1px solid #aaa;
+}
+header {
+        background-color: #1e3a8a;
+        color: #fff;
+        padding: 20px 40px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+      }
+      header h1 {
+        font-size: 1.8rem;
+        font-weight: 600;
+        margin: 0;
+      }
+      header .college {
+        font-size: 1rem;
+        text-align: right;
+      }
+      .profile-container {
+        width: 100%;
+        max-width: none;
+        margin: 24px auto 0;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        padding: 30px;
+      }
+      .profile-left {
+        text-align: center;
+        border-right: 1px solid #ddd;
+        padding-right: 30px;
+      }
+      .profile-left img {
+        width: 160px;
+        height: 160px;
+        border-radius: 50%;
+        margin-bottom: 15px;
+      }
+      .badge {
+        background-color: #4f46e5;
+        font-size: 0.9rem;
+      }
+      .profile-right {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: 100%;
+      }
+      .info-card {
+        background-color: #f9fafc;
+        border-radius: 10px;
+        padding: 25px;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-evenly;
+      }
+      .info-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 10px 0;
+        border-bottom: 1px solid #e0e0e0;
+      }
+      .info-row:last-child {
+        border-bottom: none;
+      }
+      .info-label {
+        color: #1e3a8a;
+        font-weight: 600;
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .info-value {
+        color: #333;
+        text-align: right;
+        margin-left: auto;
+        flex: 1;
+      }
+      footer {
+        text-align: center;
+        margin-top: 30px;
+        color: #666;
+        font-size: 0.9rem;
+      }
+      .fa-droplet,
+      .fa-heart {
+        color: red;
+      }
+      .fa-solid {
+        width: 30px;
+        height:30px;
+      }
+      .profile{
+        display: none;
+        position: fixed;
+        inset: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: 9999;
+        background: rgba(15, 23, 42, 0.7);
+        padding: 20px;
+        overflow-y: auto;
+      }
+      .profile > header,
+      .profile > .profile-container,
+      .profile > footer {
+        width: min(1200px, calc(100% - 16px));
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .profile > header {
+        border-radius: 12px 12px 0 0;
+      }
+      .profile > .profile-container {
+        margin-top: 0;
+        border-radius: 0 0 12px 12px;
+      }
+      .profile > footer {
+        margin-top: 0;
+        padding: 18px 0 8px;
+      }
+      .profile-actions {
+        width: min(1200px, calc(100% - 16px));
+        display: flex;
+        justify-content: flex-end;
+        margin: 0 auto 24px;
+        position: relative;
+        z-index: 10000;
+      }
+      .btn-warning{
+        position: relative;
+        width: 150px;
+      }
+      #submit{
+        position: relative;
+        width: 150px;
+        left: 45%;
+      }
+      #submit:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+      @media (max-width: 768px) {
+        .profile-left {
+          border-right: none;
+          border-bottom: 1px solid #ddd;
+          padding-bottom: 20px;
+        }
+        .info-row {
+          flex-direction: row;
+          align-items: center;
+        }
+      }
