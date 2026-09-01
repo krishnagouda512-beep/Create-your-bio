@@ -117,35 +117,44 @@ header {
         width: 30px;
         height:30px;
       }
-      .profile{
+      .profile {
         display: none;
         position: fixed;
-        inset: 0;
-        width: 100vw;
-        height: 100vh;
-        z-index: 9999;
-        background: rgba(15, 23, 42, 0.7);
-        padding: 20px;
-        overflow-y: auto;
+              top: 20px;
+              left: 50%;
+              transform: translateX(-50%);
+              width: 210mm;
+              max-width: calc(100vw - 32px);
+              min-height: 297mm;
+              z-index: 9999;
+              background: rgba(15, 23, 42, 0.7);
+              padding: 20px 0;
+              overflow-y: auto;
+            }
+            .profile * {
+              box-sizing: border-box;
+            }
+            .profile > header,
+            .profile > .profile-container,
+            .profile > footer {
+              width: 210mm;
+              max-width: calc(100% - 16px);
+              margin-left: auto;
+              margin-right: auto;
       }
-      .profile > header,
-      .profile > .profile-container,
-      .profile > footer {
-        width: min(1200px, calc(100% - 16px));
-        margin-left: auto;
-        margin-right: auto;
-      }
-      .profile > header {
-        border-radius: 12px 12px 0 0;
-      }
-      .profile > .profile-container {
-        margin-top: 0;
-        border-radius: 0 0 12px 12px;
-      }
-      .profile > footer {
-        margin-top: 0;
-        padding: 18px 0 8px;
-      }
+            .profile > header {
+              border-radius: 12px 12px 0 0;
+            }
+            .profile > .profile-container {
+              width: 210mm;
+              min-height: 297mm;
+              margin-top: 0;
+              border-radius: 0 0 12px 12px;
+            }
+            .profile > footer {
+              margin-top: 0;
+              padding: 18px 0 8px;
+            }
       .profile-actions {
         width: min(1200px, calc(100% - 16px));
         display: flex;
@@ -176,5 +185,40 @@ header {
         .info-row {
           flex-direction: row;
           align-items: center;
+        }
+      }
+
+      @media print {
+        @page {
+          size: A4;
+          margin: 8mm;
+        }
+
+        body {
+          background: #fff;
+        }
+
+        .section,
+        .profile-actions {
+          display: none !important;
+        }
+
+        .profile {
+          position: static !important;
+          display: block !important;
+          width: 210mm !important;
+          min-height: 297mm !important;
+          max-width: 210mm !important;
+          height: auto !important;
+          background: #fff !important;
+          padding: 0 !important;
+          overflow: visible !important;
+        }
+
+        .profile > header,
+        .profile > .profile-container,
+        .profile > footer {
+          width: 210mm !important;
+          max-width: 210mm !important;
         }
       }
