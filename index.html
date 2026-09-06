@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" href="logo.jpeg">
+    <link rel="icon" href="logo.jpeg" />
     <title>make your bio</title>
     <link rel="stylesheet" href="style.css" />
     <link
@@ -30,20 +30,24 @@
     <div class="section">
       <h1>create your bio</h1>
       <!-- Personal Details -->
-      <form>
+      <form class="needs-validation" novalidate>
         <div class="row">
           <h4>Personal Details</h4>
+          <label for="image">Profile Photo</label>
           <div class="mb-3 col-12 col-md-4 col-lg-3">
             <input
               type="file"
               id="image"
               accept="image/*"
               placeholder="Profile Photo"
+              required
             />
+            <div class="invalid-feedback">upload profile photo</div>
           </div>
 
           <div class="mb-3 col-12 col-md-4 col-lg-3">
             <input type="text" id="name" placeholder="Full Name" required />
+            <div class="invalid-feedback">enter full name</div>
           </div>
 
           <div class="mb-3 col-12 col-md-4 col-lg-3">
@@ -53,9 +57,13 @@
               placeholder="Roll Number / Student ID"
               required
             />
+            <div class="invalid-feedback">enter roll number</div>
           </div>
+
+          <label for="dob">D-O-B</label>
           <div class="mb-3 col-12 col-md-4 col-lg-3">
             <input type="date" id="dob" placeholder="Date of Birth" required />
+            <div class="invalid-feedback">enter date of birth</div>
           </div>
           <div class="mb-3 col-md-4">
             <select
@@ -68,9 +76,10 @@
             >
               <option value="">Select gender</option>
               <option>male</option>
-              <option>femal</option>
-              <option>trnasgender</option>
+              <option>female</option>
+              <option>transgender</option>
             </select>
+            <div class="invalid-feedback">select gender</div>
           </div>
           <!-- Education -->
           <h4>Education</h4>
@@ -81,14 +90,11 @@
               placeholder="College / University Name"
               required
             />
+            <div class="invalid-feedback">enter college name</div>
           </div>
           <div class="mb-3 col-12 col-md-4 col-lg-3">
-            <input
-              type="text"
-              id="course"
-              placeholder="Course"
-              required
-            />
+            <input type="text" id="course" placeholder="Course" required />
+            <div class="invalid-feedback">enter course</div>
           </div>
           <!-- Branch Dropdown -->
           <div class="mb-3 col-md-4">
@@ -111,6 +117,7 @@
               <option value="CE">Civil Engineering (CE)</option>
               <option value="IT">Information Technology (IT)</option>
             </select>
+            <div class="invalid-feedback">select branch</div>
           </div>
 
           <!-- Semester Dropdown -->
@@ -132,42 +139,70 @@
               <option value="7">7th Semester</option>
               <option value="8">8th Semester</option>
             </select>
+            <div class="invalid-feedback">select semester</div>
           </div>
           <!-- Contact -->
           <h4>Contact</h4>
           <div class="mb-3 col-md-4">
             <input type="email" id="email" placeholder="Email" required />
+            <div class="invalid-feedback">enter email</div>
           </div>
           <div class="mb-3 col-md-4">
-            <input type="tel" id="phone" placeholder="Phone Number" inputmode="numeric" pattern="[0-9]{10,}" maxlength="10" minlength="10" required />
+            <input
+              type="tel"
+              id="phone"
+              placeholder="Phone Number"
+              inputmode="numeric"
+              pattern="[0-9]{10,}"
+              maxlength="10"
+              minlength="10"
+              required
+            />
+            <div class="invalid-feedback">enter phone number</div>
           </div>
           <!-- Address -->
           <h4>Address</h4>
           <div class="mb-3 col-md-4">
             <input type="text" id="addres" placeholder="District" required />
+            <div class="invalid-feedback">enter district</div>
           </div>
           <div class="mb-3 col-md-4">
             <input type="text" id="city" placeholder="City" required />
+            <div class="invalid-feedback">enter city</div>
           </div>
           <div class="mb-3 col-md-4">
             <input type="text" id="state" placeholder="State" required />
+            <div class="invalid-feedback">enter state</div>
           </div>
           <div class="mb-3 col-md-4">
-            <input type="tel" id="pin" placeholder="PIN Code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" minlength="6" required />
+            <input
+              type="tel"
+              id="pin"
+              placeholder="PIN Code"
+              inputmode="numeric"
+              pattern="[0-9]{6}"
+              maxlength="6"
+              minlength="6"
+              required
+            />
+            <div class="invalid-feedback">enter PIN code</div>
           </div>
           <!-- Extra Info -->
           <h4>Additional Information</h4>
           <div class="mb-3 col-md-4">
             <input type="text" id="skill" placeholder="Skills" />
+            <div class="invalid-feedback">enter skills</div>
           </div>
 
           <div class="mb-3 col-md-4">
             <input type="text" id="hobei" placeholder="Hobbies" />
+            <div class="invalid-feedback">enter hobbies</div>
           </div>
           <div class="mb-3 col-md-4">
             <input id="about" placeholder="Blood Group" />
+            <div class="invalid-feedback">enter blood group</div>
           </div>
-          <button type="button" class="btn btn-success" id="submit">
+          <button type="submit" class="btn btn-success" id="submit">
             Submit
           </button>
         </div>
