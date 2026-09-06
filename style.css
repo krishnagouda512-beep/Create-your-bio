@@ -39,6 +39,10 @@ header .college {
   font-size: 1rem;
   text-align: right;
 }
+header .college img {
+  height: 40px;
+  object-fit: contain;
+}
 .profile-container {
   width: 100%;
   max-width: none;
@@ -133,6 +137,7 @@ footer {
   padding: 20px 0;
   overflow-y: auto;
   box-sizing: border-box;
+  overscroll-behavior: contain;
 }
 .profile * {
   box-sizing: border-box;
@@ -167,9 +172,9 @@ footer {
   z-index: 10000;
 }
 #remove {
-  display:none;
   position: relative;
   width: 150px;
+  display: none;
 }
 #submit {
   position: relative;
@@ -181,14 +186,62 @@ footer {
   cursor: not-allowed;
 }
 @media (max-width: 768px) {
+  .profile {
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    max-width: 100%;
+    min-height: 0;
+    height: 100dvh;
+    padding: 12px;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .profile > header,
+  .profile > .profile-container,
+  .profile > footer {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .profile > header {
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .profile > header h1 {
+    font-size: 1.25rem;
+  }
+
+  .profile-container {
+    padding: 18px;
+  }
+
   .profile-left {
     border-right: none;
     border-bottom: 1px solid #ddd;
     padding-bottom: 20px;
   }
+
+  .profile-left img {
+    max-width: 160px;
+    object-fit: cover;
+  }
+
   .info-row {
     flex-direction: row;
     align-items: center;
+  }
+
+  .info-label,
+  .info-value {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .info-value {
+    text-align: right;
   }
 }
 
