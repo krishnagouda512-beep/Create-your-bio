@@ -42,15 +42,13 @@ let aboutID = document.querySelector("#aboutID");
 let titleID = document.querySelector("#titleID");
 
 //function working
+let form = document.querySelector(".needs-validation");
 let submit = document.querySelector("#submit");
 let profile = document.querySelector("#profileID");
 let downloadButton = document.querySelector("#remove");
 let formFields = Array.from(
   document.querySelectorAll("input[required], select[required]"),
 );
-submit.addEventListener("click", () => {
-  downloadButton.style.display = "block";
-})
 const STORAGE_KEY = "student-profile-data";
 
 function readFileAsDataUrl(file) {
@@ -65,6 +63,25 @@ function readFileAsDataUrl(file) {
     reader.onerror = () => reject(new Error("Unable to read image file."));
     reader.readAsDataURL(file);
   });
+}
+
+function waitForImages(element) {
+  return Promise.all(
+    Array.from(element.querySelectorAll("img")).map((img) => {
+      if (img.complete && img.naturalWidth > 0) {
+        return Promise.resolve();
+      }
+
+      return new Promise((resolve, reject) => {
+        img.addEventListener("load", resolve, { once: true });
+        img.addEventListener(
+          "error",
+          () => reject(new Error(`Unable to load image: ${img.alt || "image"}`)),
+          { once: true },
+        );
+      });
+    }),
+  );
 }
 
 async function saveProfileToLocalStorage() {
@@ -99,10 +116,14 @@ async function saveProfileToLocalStorage() {
   }
 }
 
-function updateProfilePreview() {
+async function updateProfilePreview() {
   if (image.files.length > 0) {
-    const imageUrl = URL.createObjectURL(image.files[0]);
-    imageID.src = imageUrl;
+    try {
+      imageID.src = await readFileAsDataUrl(image.files[0]);
+    } catch (error) {
+      console.error("Unable to show profile image:", error);
+      imageID.src = "kit.jpg";
+    }
   } else {
     imageID.src = "kit.jpg";
   }
@@ -132,7 +153,7 @@ function updateProfilePreview() {
 function isFormValid() {
   return formFields.every((field) => {
     if (field.type === "file") {
-      return true;
+      return field.files.length > 0;
     }
 
     const value = field.value.trim();
@@ -166,9 +187,8 @@ function downloadProfileAsPdf() {
 
     const A4_WIDTH_MM = 210;
     const A4_HEIGHT_MM = 297;
-    const PAGE_MARGIN_MM = 0;
-
     const exportElement = profile.cloneNode(true);
+    exportElement.classList.add("pdf-export");
     exportElement.style.position = "static";
     exportElement.style.left = "0";
     exportElement.style.right = "auto";
@@ -184,17 +204,20 @@ function downloadProfileAsPdf() {
     exportElement.style.boxSizing = "border-box";
     profile.parentNode.insertBefore(exportElement, profile.nextSibling);
 
-    html2canvas(exportElement, {
-      scale: 2,
-      useCORS: true,
-      backgroundColor: "#ffffff",
-      scrollX: 0,
-      scrollY: 0,
-      width: A4_WIDTH_MM * 3.77953,
-      height: A4_HEIGHT_MM * 3.77953,
-      windowWidth: A4_WIDTH_MM * 3.77953,
-      windowHeight: A4_HEIGHT_MM * 3.77953,
-    })
+    waitForImages(exportElement)
+      .then(() =>
+        html2canvas(exportElement, {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: "#ffffff",
+          scrollX: 0,
+          scrollY: 0,
+          width: A4_WIDTH_MM * 3.77953,
+          height: A4_HEIGHT_MM * 3.77953,
+          windowWidth: A4_WIDTH_MM * 3.77953,
+          windowHeight: A4_HEIGHT_MM * 3.77953,
+        }),
+      )
       .then((canvas) => {
         const canvasWidth = canvas.width || exportElement.scrollWidth;
         const canvasHeight = canvas.height || exportElement.scrollHeight;
@@ -272,57 +295,52 @@ function downloadProfileAsPdf() {
   });
 }
 
-function updateSubmitButton() {
-  submit.disabled = !isFormValid();
-}
-
-submit.disabled = !isFormValid();
-formFields.forEach((field) => {
-  field.addEventListener("input", updateSubmitButton);
-  field.addEventListener("change", updateSubmitButton);
-  field.addEventListener("blur", updateSubmitButton);
-});
-
 phoneNumber.addEventListener("input", function () {
   this.value = this.value.replace(/\D/g, "");
-  updateSubmitButton();
 });
 
 pin.addEventListener("input", function () {
   this.value = this.value.replace(/\D/g, "");
-  updateSubmitButton();
 });
 
 function showProfileAsA4() {
+  const isMobile = window.matchMedia("(max-width: 768px)").matches;
   profile.style.position = "fixed";
-  profile.style.top = "20px";
-  profile.style.left = "0";
+  profile.style.top = isMobile ? "0" : "20px";
+  profile.style.bottom = isMobile ? "0" : "auto";
+  profile.style.left = isMobile ? "0" : "0";
   profile.style.right = "0";
-  profile.style.margin = "0 auto";
+  profile.style.margin = isMobile ? "0" : "0 auto";
   profile.style.transform = "none";
   profile.style.background = "#fff";
-  profile.style.width = "210mm";
-  profile.style.maxWidth = "calc(100vw - 32px)";
-  profile.style.minHeight = "297mm";
+  profile.style.width = isMobile ? "100%" : "210mm";
+  profile.style.maxWidth = isMobile ? "100%" : "calc(100vw - 32px)";
+  profile.style.minHeight = isMobile ? "0" : "297mm";
   profile.style.height = "auto";
-  profile.style.padding = "20px 0";
+  profile.style.padding = isMobile ? "12px" : "20px 0";
   profile.style.display = "block";
+  profile.style.overflowX = "hidden";
+  profile.style.overflowY = "auto";
 }
 
-submit.addEventListener("click", (e) => {
+form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  if (submit.disabled) {
+  form.classList.add("was-validated");
+
+  if (!isFormValid()) {
     return;
   }
 
-  updateProfilePreview();
-  saveProfileToLocalStorage();
+  downloadButton.style.display = "block";
+  await updateProfilePreview();
+  await saveProfileToLocalStorage();
   showProfileAsA4();
 });
 
 downloadButton.addEventListener("click", async () => {
-  saveProfileToLocalStorage();
+  await updateProfilePreview();
+  await saveProfileToLocalStorage();
   showProfileAsA4();
 
   await downloadProfileAsPdf();
