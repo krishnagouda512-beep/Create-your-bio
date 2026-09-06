@@ -1,5 +1,6 @@
 //user input
 let image = document.querySelector("#image");
+let collegeLogo = document.querySelector("#collegeLogo");
 let fullName = document.querySelector("#name");
 let rollNumber = document.querySelector("#rollNumber");
 let dateOfBirth = document.querySelector("#dob");
@@ -40,6 +41,7 @@ let skillID = document.querySelector("#skillID");
 let hobiesID = document.querySelector("#hobiesID");
 let aboutID = document.querySelector("#aboutID");
 let titleID = document.querySelector("#titleID");
+let logoID = document.querySelector("#logoID");
 
 //function working
 let form = document.querySelector(".needs-validation");
@@ -104,11 +106,17 @@ async function saveProfileToLocalStorage() {
     hobbies: hobies.value.trim(),
     bloodGroup: about.value.trim(),
     image: "",
+    collegeLogo: "",
     lastUpdated: new Date().toISOString(),
   };
 
   try {
-    profileData.image = await readFileAsDataUrl(image.files[0]);
+    [profileData.image, profileData.collegeLogo] = await Promise.all([
+      readFileAsDataUrl(image.files[0]),
+      collegeLogo.files[0]
+        ? readFileAsDataUrl(collegeLogo.files[0])
+        : Promise.resolve("logo.jpeg"),
+    ]);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(profileData));
   } catch (error) {
     console.error(error);
@@ -126,6 +134,17 @@ async function updateProfilePreview() {
     }
   } else {
     imageID.src = "kit.jpg";
+  }
+
+  if (collegeLogo.files.length > 0) {
+    try {
+      logoID.src = await readFileAsDataUrl(collegeLogo.files[0]);
+    } catch (error) {
+      console.error("Unable to show college logo:", error);
+      logoID.src = "logo.jpeg";
+    }
+  } else {
+    logoID.src = "logo.jpeg";
   }
 
   nameID.textContent = fullName.value;
@@ -148,6 +167,7 @@ async function updateProfilePreview() {
   skillID.textContent = skill.value;
   hobiesID.textContent = hobies.value;
   aboutID.textContent = about.value;
+
 }
 
 function isFormValid() {
